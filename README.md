@@ -1,1 +1,4 @@
-# algorithms
+# Algorithms
+
+###
+Matrix Chain Multiplication
