@@ -223,6 +223,6 @@ if __name__ == '__main__':
     for k, v in tr.items():
         rbTree.put(k, v)
 
-    # print(rbTree.get(124))
+    print(rbTree.get(124))
 
     # rbTree.show()
