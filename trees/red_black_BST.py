@@ -62,8 +62,8 @@ class RedBlackBST:
         return x
 
     def _filpColors(self, h):
-        h.isRed = True
-        h.left.isRed, h.right.isRed = False, False
+        h.isRed = not h.isRed
+        h.left.isRed, h.right.isRed = not h.left.isRed, not h.right.isRed
 
     def put(self, key, value):
         self.root = self._put(self.root, key, value)
