@@ -26,7 +26,7 @@ class RedBlackBST:
         self.root = None
         self.size = 0
     
-    def isEmpty(self):
+    def _isEmpty(self):
         return (self.root is None)
 
     def _size(self, x):
@@ -93,7 +93,7 @@ class RedBlackBST:
     # TODO: compelete deletion
 
     def deleteMin(self):
-        if self.isEmpty():
+        if self._isEmpty():
             raise NoSuchElementException('Empty RedBlackBST')
         
         if not self._isRed(self.root.left) and not self._isRed(self.root.right):
@@ -128,6 +128,35 @@ class RedBlackBST:
             self._filpColors(h)
         
         h.N = self._size(h.left) + self._size(h.right) + 1
+        return h
+
+    def deleteMax(self):
+        if self._isEmpty():
+            raise NoSuchElementException('Empty RedBlackBST')
+
+        if not self._isRed(self.root.left) and not self._isRed(self.root.right):
+            self.root.isRed = True
+        
+        self.root = self._deleteMax(self.root)
+        self.root.isRed = False
+
+    def _deleteMax(self, h):
+        if self._isRed(h.left):
+            h = self._rotateRight(h)
+        
+        if h.right is None:
+            return None
+        
+        if not self._isRed(h.right) and not self._isRed(h.right.left):
+            h = self._moveRedRight(h)
+        
+        h.right = self._deleteMax(h.right)
+        return self._balance(h)
+    
+    def _moveRedRight(self, h):
+        self._filpColors(h)
+        if self._isRed(h.left.left):
+            h = self._rotateRight(h)
         return h
 
     # def show(self):
