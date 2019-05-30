@@ -95,6 +95,40 @@ class RedBlackBST:
     def deleteMin(self):
         if self.isEmpty():
             raise NoSuchElementException('Empty RedBlackBST')
+        
+        if not self._isRed(self.root.left) and not self._isRed(self.root.right):
+            self.root.isRed = True
+        
+        self.root = self._deleteMin(self.root)
+        self.root.isRed = False
+
+    def _deleteMin(self, h):
+        if h.left is None:
+            return None
+        if not self._isRed(h.left) and not self._isRed(h.left.left):
+            h = self._moveRedLeft(h)
+        
+        h.left = self._deleteMin(h.left)
+        return self._balance(h)
+
+    def _moveRedLeft(self, h):
+        self._filpColors(h)
+        if self._isRed(h.right.left):
+            h.right = self._rotateRight(h.right)
+            h = self._rotateLeft(h)
+            self._filpColors(h)
+        return h
+
+    def _balance(self, h):
+        if self._isRed(h.right):
+            h = self._rotateLeft(h)
+        if self._isRed(h.left) and self._isRed(h.left.left):
+            h = self._rotateRight(h)
+        if self._isRed(h.left) and self._isRed(h.right):
+            self._filpColors(h)
+        
+        h.N = self._size(h.left) + self._size(h.right) + 1
+        return h
 
     # def show(self):
     #     g = Digraph("RedBlackBST")
