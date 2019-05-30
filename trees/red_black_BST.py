@@ -1,5 +1,13 @@
 import random
-from graphviz import Digraph
+# from graphviz import Digraph
+
+
+class NoSuchElementException(Exception):
+    """
+    Error trying access an empty tree
+    """
+    pass
+
 
 class RedBlackBST:
 
@@ -17,6 +25,9 @@ class RedBlackBST:
     def __init__(self):
         self.root = None
         self.size = 0
+    
+    def isEmpty(self):
+        return (self.root is None)
 
     def _size(self, x):
         if x is None:
@@ -79,29 +90,35 @@ class RedBlackBST:
 
         return h
 
-    def show(self):
-        g = Digraph("RedBlackBST")
-        self._show(self.root, g)
-        g.view()
+    # TODO: compelete deletion
+
+    def deleteMin(self):
+        if self.isEmpty():
+            raise NoSuchElementException('Empty RedBlackBST')
+
+    # def show(self):
+    #     g = Digraph("RedBlackBST")
+    #     self._show(self.root, g)
+    #     g.view()
 
 
-    def _show(self, h, g):
-        g.node(str(h.key), lable = str(h.key))
-        if h.left is not None:
-            h_left = self._show(h.left, g)
-            g.node(str(h_left.key), lable = str(h_left.key))
-            if h_left.isRed:
-                g.edge(str(h.key), str(h_left.key), color='red')
-            else:
-                g.edge(str(h.key), str(h_left.key), color='black')
-        if h.right is not None:
-            h_right = self._show(h.right, g)
-            g.node(str(h_right.key), label = str(h_right.key))
-            if h_right.isRed:
-                g.edge(str(h.key), str(h_right.key), color='red')
-            else:
-                g.edge(str(h.key), str(h_right.key), color='black')
-        return h
+    # def _show(self, h, g):
+    #     g.node(str(h.key), lable = str(h.key))
+    #     if h.left is not None:
+    #         h_left = self._show(h.left, g)
+    #         g.node(str(h_left.key), lable = str(h_left.key))
+    #         if h_left.isRed:
+    #             g.edge(str(h.key), str(h_left.key), color='red')
+    #         else:
+    #             g.edge(str(h.key), str(h_left.key), color='black')
+    #     if h.right is not None:
+    #         h_right = self._show(h.right, g)
+    #         g.node(str(h_right.key), label = str(h_right.key))
+    #         if h_right.isRed:
+    #             g.edge(str(h.key), str(h_right.key), color='red')
+    #         else:
+    #             g.edge(str(h.key), str(h_right.key), color='black')
+    #     return h
 
 if __name__ == '__main__':
     tr = {}
@@ -114,4 +131,4 @@ if __name__ == '__main__':
     for k, v in tr.items():
         rbTree.put(k, v)
 
-    rbTree.show()
+    # rbTree.show()
