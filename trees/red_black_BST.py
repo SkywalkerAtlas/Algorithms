@@ -21,6 +21,10 @@ class RedBlackBST:
             self.isRed = isRed
             self.right = right
             self.left = left
+        
+        # For debug
+        def __str__(self):
+            return 'key: {}, value: {}, N: {}, color: {}'.format(self.key, self.value, self.N, 'Red' if self.isRed else 'Black')
 
     def __init__(self):
         self.root = None
@@ -89,6 +93,20 @@ class RedBlackBST:
         h.N = self._size(h.right) + self._size(h.left) + 1
 
         return h
+
+    def get(self, key):
+        return self._get(self.root, key)
+    
+    def _get(self, h, key):
+        x = h
+        while x is not None:
+            if key > x.key:
+                x = x.right
+            elif key < x.key:
+                x = x.left
+            else:
+                return x.value
+        return None
 
     # TODO: compelete deletion
 
@@ -161,6 +179,14 @@ class RedBlackBST:
             h = self._rotateRight(h)
         return h
 
+    def contains(self, key):
+        return self.get(key) is not None
+
+    def delete(self, key):
+        if self._isEmpty():
+            raise NoSuchElementException('Empty RedBlackBST')
+        
+
     # def show(self):
     #     g = Digraph("RedBlackBST")
     #     self._show(self.root, g)
@@ -187,7 +213,8 @@ class RedBlackBST:
 
 if __name__ == '__main__':
     tr = {}
-    tr_item = set(random.randint(1, 200) for _ in range(100))
+    random.seed(1024)
+    tr_item = set(random.randint(1, 200) for _ in range(5))
     for i in tr_item:
         tr[i] = i
     # print(tr)
@@ -195,5 +222,7 @@ if __name__ == '__main__':
     rbTree = RedBlackBST()
     for k, v in tr.items():
         rbTree.put(k, v)
+
+    # print(rbTree.get(124))
 
     # rbTree.show()
