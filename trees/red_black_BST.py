@@ -108,6 +108,13 @@ class RedBlackBST:
                 return x.value
         return None
 
+    def _min(self, h):
+        if h.left is None:
+            return h
+        else:
+            return self._min(h.left)
+
+
     # TODO: compelete deletion
 
     def deleteMin(self):
@@ -179,12 +186,44 @@ class RedBlackBST:
             h = self._rotateRight(h)
         return h
 
-    def contains(self, key):
+    def _contains(self, key):
         return self.get(key) is not None
 
     def delete(self, key):
         if self._isEmpty():
             raise NoSuchElementException('Empty RedBlackBST')
+        if not self._contains(key):
+            return
+        
+        if not self._isRed(self.root.left) and not self._isRed(self.root.right):
+            self.root.isRed = True
+        
+        self.root = self._delete(self.root, key)
+        if (not self._isEmpty()):
+            self.root.isRed = False
+    
+    def _delete(self, h, key):
+        if key < h.key:
+            if not self._isRed(h.left) and not self._isRed(h.left.left):
+                h = self._moveRedLeft(h)
+            h.left = self._delete(h.left, key)
+        else:
+            if self._isRed(h.left):
+                h = self._rotateRight(h)
+            if key == h.key and (h.right is not None):
+                return None
+            if not self._isRed(h.right) and not self._isRed(h.right.left):
+                h = self._moveRedRight(h)
+            
+            if key == h.key:
+                x = self._min(h.right)
+                h.key = x.key
+                h.value = x.value
+                h.right = self._deleteMin(h.right)
+            else:
+                h.right = self._delete(h.right, key)
+            
+        return self._balance(h)
         
 
     # def show(self):
@@ -223,6 +262,6 @@ if __name__ == '__main__':
     for k, v in tr.items():
         rbTree.put(k, v)
 
-    print(rbTree.get(124))
+    # print(rbTree.get(124))
 
     # rbTree.show()
