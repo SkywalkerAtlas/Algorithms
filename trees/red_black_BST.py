@@ -100,7 +100,8 @@ class RedBlackBST:
             self.root.isRed = True
         
         self.root = self._deleteMin(self.root)
-        self.root.isRed = False
+        if not self._isEmpty():
+            self.root.isRed = False
 
     def _deleteMin(self, h):
         if h.left is None:
@@ -138,7 +139,8 @@ class RedBlackBST:
             self.root.isRed = True
         
         self.root = self._deleteMax(self.root)
-        self.root.isRed = False
+        if not self._isEmpty():
+            self.root.isRed = False
 
     def _deleteMax(self, h):
         if self._isRed(h.left):
