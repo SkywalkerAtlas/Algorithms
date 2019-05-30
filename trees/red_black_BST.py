@@ -28,22 +28,89 @@ class RedBlackBST:
 
     def __init__(self):
         self.root = None
-        self.size = 0
     
-    def _isEmpty(self):
-        return (self.root is None)
+    # ---------------------------------------------------- Node Helper Method -----------------------------------------------------
+    def size(self):
+        return self._size(self.root)
 
     def _size(self, x):
         if x is None:
             return 0
         else:
             return x.N
+    
+    def _isEmpty(self):
+        return (self.root is None)
 
     def _isRed(self, h):
         if h is None:
             return False
         else:
             return h.isRed == True
+    
+    # -------------------------------------------------- Ordered Symbol Table Helper Method ---------------------------------------------
+    def rank(self, key):
+        """Return the number of keys in the symbol table strictly less than key"""
+        return self._rank(self.root, key)
+    
+    def _rank(self, h, key):
+        if h is None:
+            return 0
+        if key < h.key:
+            return self._rank(h.left, key)
+        elif key > h.key:
+            return self._rank(h.right, key) + self._size(h.left) + 1
+        else:
+            return self._size(h.left)
+        
+    def select(self, k):
+        """Return (k+1)th smallest key in the tree"""
+        h = self._select(self.root, k)
+        return h
+
+    def _select(self, h, k):
+        t = self._size(h.left)
+        if t > k:
+            return self._select(h.left, k)
+        elif t < k:
+            return self._select(h.right, k-t-1)
+        else:
+            return h
+    
+    # --------------------------------------------------- BST Search ---------------------------------------------------------
+    def get(self, key):
+        return self._get(self.root, key)
+    
+    def _get(self, h, key):
+        x = h
+        while x is not None:
+            if key > x.key:
+                x = x.right
+            elif key < x.key:
+                x = x.left
+            else:
+                return x.value
+        return None
+
+    def min(self):
+        return self._min(self.root)
+
+    def _min(self, h):
+        if h.left is None:
+            return h
+        else:
+            return self._min(h.left)
+    
+    def max(self):
+        return self._max(self.root)
+    
+    def _max(self, h):
+        if h.right is None:
+            return h
+        else:
+            return self._max(h.right)
+
+    # ------------------------------------------------ Red Black Tree Helper Methods --------------------------------------------
 
     def _rotateLeft(self, h):
         x = h.right
@@ -65,10 +132,37 @@ class RedBlackBST:
         h.N = 1 + self._size(h.left) + self._size(h.right)
         return x
 
-    def _filpColors(self, h):
+    def _flipColors(self, h):
         h.isRed = not h.isRed
         h.left.isRed, h.right.isRed = not h.left.isRed, not h.right.isRed
 
+    def _moveRedLeft(self, h):
+        self._flipColors(h)
+        if self._isRed(h.right.left):
+            h.right = self._rotateRight(h.right)
+            h = self._rotateLeft(h)
+            self._flipColors(h)
+        return h
+
+    def _moveRedRight(self, h):
+        self._flipColors(h)
+        if self._isRed(h.left.left):
+            h = self._rotateRight(h)
+        return h
+
+
+    def _balance(self, h):
+        if self._isRed(h.right):
+            h = self._rotateLeft(h)
+        if self._isRed(h.left) and self._isRed(h.left.left):
+            h = self._rotateRight(h)
+        if self._isRed(h.left) and self._isRed(h.right):
+            self._flipColors(h)
+        
+        h.N = self._size(h.left) + self._size(h.right) + 1
+        return h
+    
+    # ----------------------------------------------------- Red Black Tree Insertion ---------------------------------------------
     def put(self, key, value):
         self.root = self._put(self.root, key, value)
         self.root.isRed = False
@@ -88,35 +182,13 @@ class RedBlackBST:
         elif self._isRed(h.left) and self._isRed(h.left.left):
             h = self._rotateRight(h)
         elif self._isRed(h.left) and self._isRed(h.right):
-            self._filpColors(h)
+            self._flipColors(h)
 
         h.N = self._size(h.right) + self._size(h.left) + 1
 
         return h
 
-    def get(self, key):
-        return self._get(self.root, key)
-    
-    def _get(self, h, key):
-        x = h
-        while x is not None:
-            if key > x.key:
-                x = x.right
-            elif key < x.key:
-                x = x.left
-            else:
-                return x.value
-        return None
-
-    def _min(self, h):
-        if h.left is None:
-            return h
-        else:
-            return self._min(h.left)
-
-
-    # TODO: compelete deletion
-
+    # -------------------------------------------------- Red Black Tree Deletion -----------------------------------------------
     def deleteMin(self):
         if self._isEmpty():
             raise NoSuchElementException('Empty RedBlackBST')
@@ -136,25 +208,6 @@ class RedBlackBST:
         
         h.left = self._deleteMin(h.left)
         return self._balance(h)
-
-    def _moveRedLeft(self, h):
-        self._filpColors(h)
-        if self._isRed(h.right.left):
-            h.right = self._rotateRight(h.right)
-            h = self._rotateLeft(h)
-            self._filpColors(h)
-        return h
-
-    def _balance(self, h):
-        if self._isRed(h.right):
-            h = self._rotateLeft(h)
-        if self._isRed(h.left) and self._isRed(h.left.left):
-            h = self._rotateRight(h)
-        if self._isRed(h.left) and self._isRed(h.right):
-            self._filpColors(h)
-        
-        h.N = self._size(h.left) + self._size(h.right) + 1
-        return h
 
     def deleteMax(self):
         if self._isEmpty():
@@ -180,15 +233,6 @@ class RedBlackBST:
         h.right = self._deleteMax(h.right)
         return self._balance(h)
     
-    def _moveRedRight(self, h):
-        self._filpColors(h)
-        if self._isRed(h.left.left):
-            h = self._rotateRight(h)
-        return h
-
-    def _contains(self, key):
-        return self.get(key) is not None
-
     def delete(self, key):
         if self._isEmpty():
             raise NoSuchElementException('Empty RedBlackBST')
@@ -225,6 +269,71 @@ class RedBlackBST:
             
         return self._balance(h)
         
+    # -------------------------------------------- Integrity Checker ----------------------------------
+    def _contains(self, key):
+        return self.get(key) is not None
+
+    def check(self):
+        if not self.isBST():
+            print('Not in symmetric order')
+        if not self.isSizeConsistent():
+            print('Subtree counts not consistent')
+        if not self.is23():
+            print('Not a 2-3 tree')
+        if not self.isBalanced():
+            print('Not Balanced')
+        return self.isBST() and self.isSizeConsistent() and self.is23() and self.isBalanced()
+
+    def isBST(self):
+        return self._isBST(self.root, None, None)
+
+    def _isBST(self, h, min_, max_):
+        if h is None:
+            return True
+        if (min_ is not None) and h.key < min_:
+            return False
+        if (max_ is not None) and h.key > max_:
+            return False
+        return self._isBST(h.left, min_, h.key) and self._isBST(h.right, h.key, max_)
+
+    def isSizeConsistent(self):
+        return self._isSizeConsistent(self.root)
+    
+    def _isSizeConsistent(self, h):
+        if h is None:
+            return True
+        if h.N != self._size(h.left) + self._size(h.right) + 1:
+            return False
+        return self._isSizeConsistent(h.left) and self._isSizeConsistent(h.right)
+    
+    def is23(self):
+        return self._is23(self.root)
+    
+    def _is23(self, h):
+        if h is None:
+            return True
+        if self._isRed(h.right):
+            return False
+        if h != self.root and self._isRed(h) and self._isRed(h.left):
+            return False
+        return self._is23(h.left) and self._is23(h.right)
+    
+    def isBalanced(self):
+        black = 0
+        h = self.root
+        while h is not None:
+            if not self._isRed(h):
+                black += 1
+            h = h.left
+        
+        return self._isBalanced(self.root, black)
+    
+    def _isBalanced(self, h, black):
+        if h is None:
+            return black == 0
+        if (not self._isRed(h)):
+            black -= 1
+        return self._isBalanced(h.left, black) and self._isBalanced(h.right, black)
 
     # def show(self):
     #     g = Digraph("RedBlackBST")
@@ -233,10 +342,10 @@ class RedBlackBST:
 
 
     # def _show(self, h, g):
-    #     g.node(str(h.key), lable = str(h.key))
+    #     g.node(str(h.key), label = str(h.key))
     #     if h.left is not None:
     #         h_left = self._show(h.left, g)
-    #         g.node(str(h_left.key), lable = str(h_left.key))
+    #         g.node(str(h_left.key), label = str(h_left.key))
     #         if h_left.isRed:
     #             g.edge(str(h.key), str(h_left.key), color='red')
     #         else:
@@ -253,7 +362,7 @@ class RedBlackBST:
 if __name__ == '__main__':
     tr = {}
     random.seed(1024)
-    tr_item = set(random.randint(1, 200) for _ in range(5))
+    tr_item = set(random.randint(1, 2000) for _ in range(500))
     for i in tr_item:
         tr[i] = i
     # print(tr)
@@ -263,5 +372,11 @@ if __name__ == '__main__':
         rbTree.put(k, v)
 
     # print(rbTree.get(124))
-
+    rbTree.deleteMin()
+    rbTree.deleteMin()
+    rbTree.deleteMin()
+    rbTree.deleteMin()
+    rbTree.deleteMin()
+    rbTree.deleteMax()
+    print(rbTree.check())
     # rbTree.show()
